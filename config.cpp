@@ -1,4 +1,7 @@
 #include "config.h"
+#include "logger_macros.h"
+
+
 using namespace  tinyxml2;
 Config::Config()
 {
@@ -17,28 +20,28 @@ void Config::getConfig(const char *fileName)
     XMLDocument doc;
     if (doc.LoadFile(fileName) != tinyxml2::XMLError::XML_SUCCESS)
     {
-        std::cout << "Error opening Config XML file!" << std::endl;
+        LOG_ERROR("Error opening Config XML file");
         return;
     }
 
     XMLElement *root = doc.FirstChildElement(CNS_TAG_ROOT);
     if (!root)
     {
-        std::cout << "No 'root' element found in XML file."<<std::endl;
+        LOG_ERROR("No 'root' element found in XML file.");
         return;
     }
 
     XMLElement *algorithm = root->FirstChildElement(CNS_TAG_ALGORITHM);
     if(!algorithm)
     {
-        std::cout << "No 'algorithm' element found in XML file."<<std::endl;
+        LOG_ERROR("No 'algorithm' element found in XML file.");
         return;
     }
 
     XMLElement *element = algorithm->FirstChildElement("precision");
     if (!element)
     {
-        std::cout << "Error! No 'precision' element found inside '"<<CNS_TAG_ALGORITHM<<"' section. It's compared to '"<<CN_PRECISION<<"'."<<std::endl;
+        LOG_WARNING("Error! No 'precision' element found inside '{}' section. It's compared to '{}'.", CNS_TAG_ALGORITHM, CN_PRECISION);
         precision = CN_PRECISION;
     }
     else
@@ -48,7 +51,7 @@ void Config::getConfig(const char *fileName)
         stream>>precision;
         if(precision > 1.0 || precision <= 0)
         {
-            std::cout << "Error! Wrong 'precision' value found inside '"<<CNS_TAG_ALGORITHM<<"' section. It's compared to '"<<CN_PRECISION<<"'."<<std::endl;
+            LOG_WARNING("Error! Wrong 'precision' element found inside '{}' section. It's compared to '{}'.", CNS_TAG_ALGORITHM, CN_PRECISION);
             precision = CN_PRECISION;
         }
         stream.clear();
@@ -58,7 +61,7 @@ void Config::getConfig(const char *fileName)
     element = algorithm->FirstChildElement("use_cardinal");
     if (!element)
     {
-        std::cout << "Error! No 'use_cardinal' element found inside '"<<CNS_TAG_ALGORITHM<<"' section. It's compared to '"<<CN_USE_CARDINAL<<"'."<<std::endl;
+        LOG_WARNING("Error! No 'use_cardinal' element found inside '{}' section. It's compared to '{}'.", CNS_TAG_ALGORITHM, CN_USE_CARDINAL);
         use_cardinal = CN_USE_CARDINAL;
     }
     else
@@ -82,7 +85,7 @@ void Config::getConfig(const char *fileName)
     element = algorithm->FirstChildElement("use_disjoint_splitting");
     if (!element)
     {
-        std::cout << "Error! No 'use_disjoint_splitting' element found inside '"<<CNS_TAG_ALGORITHM<<"' section. It's compared to '"<<CN_USE_DS<<"'."<<std::endl;
+        LOG_WARNING("Error! No 'use_disjoint_splitting' element found inside '{}' section. It's compared to '{}'.", CNS_TAG_ALGORITHM, CN_USE_DS);
         use_disjoint_splitting = CN_USE_DS;
     }
     else
@@ -99,6 +102,7 @@ void Config::getConfig(const char *fileName)
         else
         {
             std::cout << "Error! Wrong 'use_disjoint_splitting' element found inside '"<<CNS_TAG_ALGORITHM<<"' section. It's compared to '"<<CN_USE_DS<<"'."<<std::endl;
+            LOG_WARNING("Error! Wrong 'use_disjoint_splitting' element found inside '{}' section. It's compared to '{}'.");
             use_disjoint_splitting = CN_USE_DS;
         }
     }
