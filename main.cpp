@@ -1,14 +1,22 @@
+#define BOOST_LOG_DYN_LINK 1
+
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include "map.h"
 #include "task.h"
 #include "cbs.h"
 #include "xml_logger.h"
+#include "logger.h"
+#include "logger_macros.h"
+
 
 int main(int argc, const char *argv[])
 {
     if(argc > 2)
     {
+        init_logging();
+        LOG_INFO("Start CBS {}", "Algorithm");
         Config config;
         if(argc > 3)
             config.getConfig(argv[3]);
