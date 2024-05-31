@@ -399,6 +399,9 @@ class Vector2D {
     inline void operator -=(const Vector2D &vec) { i -= vec.i; j -= vec.j; }
 };
 
+
+enum class PointDir {LEFT, RIGHT, BEHIND, BEYOND, ORIGIN, DESTINATION, BETWEEN};
+
 class Point {
 public:
     double i;
@@ -407,25 +410,25 @@ public:
     Point(double _i = 0.0, double _j = 0.0):i (_i), j (_j){}
     Point operator-(Point &p){return Point(i - p.i, j - p.j);}
     int operator== (Point &p){return (i == p.i) && (j == p.j);}
-    int classify(Point &pO, Point &p1)
+    PointDir classify(Point &pO, Point &p1)
     {
         Point p2 = *this;
         Point a = p1 - pO;
         Point b = p2 - pO;
         double sa = a.i * b.j - b.i * a.j;
         if (sa > 0.0)
-            return 1;//LEFT;
+            return PointDir::LEFT;//LEFT;
         if (sa < 0.0)
-            return 2;//RIGHT;
+            return PointDir::RIGHT;//RIGHT;
         if ((a.i * b.i < 0.0) || (a.j * b.j < 0.0))
-            return 3;//BEHIND;
+            return PointDir::BEHIND;//BEHIND;
         if ((a.i*a.i + a.j*a.j) < (b.i*b.i + b.j*b.j))
-            return 4;//BEYOND;
+            return PointDir::BEYOND;//BEYOND;
         if (pO == p2)
-            return 5;//ORIGIN;
+            return PointDir::ORIGIN;//ORIGIN;
         if (p1 == p2)
-            return 6;//DESTINATION;
-        return 7;//BETWEEN;
+            return PointDir::DESTINATION;//DESTINATION;
+        return PointDir::BETWEEN;//BETWEEN;
     }
 };
 
