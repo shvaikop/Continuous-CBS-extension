@@ -88,18 +88,18 @@ Constraint CBS::get_wait_constraint(int agent, Move move1, Move move2)
     double i0(map->get_i(move2.id1)), j0(map->get_j(move2.id1)), i1(map->get_i(move2.id2)), j1(map->get_j(move2.id2)), i2(map->get_i(move1.id1)), j2(map->get_j(move1.id1));
     std::pair<double,double> interval;
     Point point(i2,j2), p0(i0,j0), p1(i1,j1);
-    int cls = point.classify(p0, p1);
+    PointDir cls = point.classify(p0, p1);
     double dist = fabs((i0 - i1)*j2 + (j1 - j0)*i2 + (j0*i1 - i0*j1))/sqrt(pow(i0 - i1, 2) + pow(j0 - j1, 2));
     double da = (i0 - i2)*(i0 - i2) + (j0 - j2)*(j0 - j2);
     double db = (i1 - i2)*(i1 - i2) + (j1 - j2)*(j1 - j2);
     double ha = sqrt(da - dist*dist);
     double size = sqrt(radius*radius - dist*dist);
-    if(cls == 3)
+    if(cls == PointDir::BEHIND)
     {
         interval.first = move2.t1;
         interval.second = move2.t1 + (sqrt(radius*radius - dist*dist) - ha);
     }
-    else if(cls == 4)
+    else if(cls == PointDir::BEYOND)
     {
         interval.first = move2.t2 - sqrt(radius*radius - dist*dist) + sqrt(db - dist*dist);
         interval.second = move2.t2;
