@@ -1,4 +1,6 @@
+
 #include "task.h"
+
 Task::Task()
 {
     agents.clear();
@@ -47,8 +49,9 @@ void Task::make_ids(int width)
     {
         agents[i].start_id = int(agents[i].start_i)*width + int(agents[i].start_j);
         agents[i].goal_id = int(agents[i].goal_i)*width + int(agents[i].goal_j);
-        //std::cout<<agents[i].start_i<<" "<<agents[i].start_j<<"  "<<agents[i].goal_i<<" "<<agents[i].goal_j<<"\n";
+        LOG_TRACE("Agent {} start_id: {} goal_id: {}", i, agents[i].start_id, agents[i].goal_id);
     }
+    agents.mark_built();
 }
 
 void Task::make_ij(const Map& map)
@@ -61,7 +64,7 @@ void Task::make_ij(const Map& map)
         agents[i].goal_i = goal.i;
         agents[i].goal_j = goal.j;
     }
-
+    agents.mark_built();
 }
 
 Agent Task::get_agent(int id) const

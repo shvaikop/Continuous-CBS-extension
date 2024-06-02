@@ -6,19 +6,24 @@
 #include <algorithm>
 #include <sstream>
 #include <vector>
+#include <fstream>
+#include <memory>
 #include "tinyxml2.h"
 #include "structs.h"
 #include "const.h"
-#include <fstream>
 #include "map.h"
+#include "utils.h"
+#include "logger_macros.h"
 
 class Task
 {
 private:
-    std::vector<Agent> agents;
+    // std::unique_ptr<std::vector<Agent>> _agents;    // Agents storage, should not be accessed directly
+    // const std::vector<Agent>& agents_ref;           // const Reference to access _agents
+    ImmutableVector<Agent> agents;
 public:
     bool get_task(const char* FileName, int k=-1);
-    unsigned int get_agents_size() const { return agents.size(); }
+    unsigned int get_agents_size() const { return agents.size(); }  // Number of agents
     void make_ids(int width);
     void make_ij(const Map &map);
     Agent get_agent(int id) const;
@@ -26,7 +31,7 @@ public:
     {
         //for(int i=0; i<agents.size(); i++)
         //    std::cout<<i<<","<<agents[i].start_i<<","<<agents[i].start_j<<","<<agents[i].goal_i<<","<<agents[i].goal_j<<"\n";
-        for(auto agent:agents)
+        for(auto agent : agents)
             std::cout<<"<agent start_i=\""<<agent.start_i<<"\" start_j=\""<<agent.start_j<<"\" goal_i=\""<<agent.goal_i<<"\" goal_j=\""<<agent.goal_j<<"\"/>\n";
     }
     Task();
