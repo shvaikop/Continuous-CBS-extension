@@ -1,4 +1,5 @@
 #include "map.h"
+#include "logger_macros.h"
 
 bool Map::get_map(const char* FileName)
 {
@@ -6,7 +7,7 @@ bool Map::get_map(const char* FileName)
     tinyxml2::XMLDocument doc;
     if (doc.LoadFile(FileName) != tinyxml2::XMLError::XML_SUCCESS)
     {
-        std::cout << "Error opening XML file!" << std::endl;
+        LOG_ERROR("Error opening XML file");
         return false;
     }
     root = doc.FirstChildElement(CNS_TAG_ROOT);
@@ -24,8 +25,12 @@ bool Map::get_map(const char* FileName)
 
 double Map::get_i(int id) const
 {
-    if(!map_is_roadmap)
-        return int(id/width);
+    if(!map_is_roadmap) {
+        auto res = int(id/width);
+        LOG_DEBUG("id = {}, width = {}, res = {}", id, width, res);
+        return res;
+        // return int(id/width);
+    }
     else
         return nodes[id].i;
 }

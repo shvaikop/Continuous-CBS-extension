@@ -16,7 +16,7 @@ int main(int argc, const char *argv[])
     if(argc > 2)
     {
         init_logging();
-        LOG_INFO("Start CBS {}", "Algorithm");
+        LOG_TRACE("Start CBS {}", "Algorithm");
         Config config;
         if(argc > 3)
             config.getConfig(argv[3]);

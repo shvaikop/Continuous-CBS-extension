@@ -110,7 +110,7 @@ void Config::getConfig(const char *fileName)
     element = algorithm->FirstChildElement("connectedness");
     if (!element)
     {
-        std::cout << "Error! No 'connectedness' element found inside '"<<CNS_TAG_ALGORITHM<<"' section. It's compared to '"<<CN_CONNECTEDNESS<<"'."<<std::endl;
+        LOG_WARNING("Error! No 'connectedness' element found inside '{}' section. It's compared to '{}'.", CNS_TAG_ALGORITHM, CN_CONNECTEDNESS);
         connectdness = CN_CONNECTEDNESS;
     }
     else
@@ -120,7 +120,7 @@ void Config::getConfig(const char *fileName)
         stream>>connectdness;
         if(connectdness > 5 || connectdness < 2)
         {
-            std::cout << "Error! Wrong 'connectedness' value found inside '"<<CNS_TAG_ALGORITHM<<"' section. It's compared to '"<<CN_CONNECTEDNESS<<"'."<<std::endl;
+            LOG_WARNING("Error! Wrong 'connectedness' value found inside '{}' section. It's compared to '{}'.", CNS_TAG_ALGORITHM, CN_CONNECTEDNESS);
             connectdness = CN_CONNECTEDNESS;
         }
         stream.clear();
@@ -130,7 +130,7 @@ void Config::getConfig(const char *fileName)
     element = algorithm->FirstChildElement("focal_weight");
     if (!element)
     {
-        std::cout << "Error! No 'focal_weight' element found inside '"<<CNS_TAG_ALGORITHM<<"' section. It's compared to '"<<CN_FOCAL_WEIGHT<<"'."<<std::endl;
+        LOG_WARNING("Error! No 'focal_weight' element found inside '{}' section. It's compared to '{}'.", CNS_TAG_ALGORITHM, CN_FOCAL_WEIGHT);
         focal_weight = CN_FOCAL_WEIGHT;
     }
     else
@@ -140,7 +140,7 @@ void Config::getConfig(const char *fileName)
         stream>>focal_weight;
         if(focal_weight < 1.0)
         {
-            std::cout << "Error! Wrong 'focal_weight' value found inside '"<<CNS_TAG_ALGORITHM<<"' section. It's compared to '"<<CN_FOCAL_WEIGHT<<"'."<<std::endl;
+            LOG_WARNING("Error! Wrong 'focal_weight' value found inside '{}' section. It's compared to '{}'.", CNS_TAG_ALGORITHM, CN_FOCAL_WEIGHT);
             focal_weight = CN_FOCAL_WEIGHT;
         }
         stream.clear();
@@ -150,7 +150,7 @@ void Config::getConfig(const char *fileName)
     element = algorithm->FirstChildElement("agent_size");
     if (!element)
     {
-        std::cout << "Error! No 'agent_size' element found inside '"<<CNS_TAG_ALGORITHM<<"' section. It's compared to '"<<CN_AGENT_SIZE<<"'."<<std::endl;
+        LOG_WARNING("Error! No 'agent_size' element found inside '{}' section. It's compared to '{}'.", CNS_TAG_ALGORITHM, CN_AGENT_SIZE);
         agent_size = CN_AGENT_SIZE;
     }
     else
@@ -160,7 +160,7 @@ void Config::getConfig(const char *fileName)
         stream>>agent_size;
         if(agent_size < 0 || agent_size > 0.5)
         {
-            std::cout << "Error! Wrong 'agent_size' value found inside '"<<CNS_TAG_ALGORITHM<<"' section. It's compared to '"<<CN_AGENT_SIZE<<"'."<<std::endl;
+            LOG_WARNING("Error! Wrong 'agent_size' value found inside '{}' section. It's compared to '{}'.", CNS_TAG_ALGORITHM, CN_AGENT_SIZE);
             agent_size = CN_AGENT_SIZE;
         }
         stream.clear();
@@ -170,7 +170,7 @@ void Config::getConfig(const char *fileName)
     element = algorithm->FirstChildElement("hlh_type");
     if (!element)
     {
-        std::cout << "Error! No 'hlh_type' element found inside '"<<CNS_TAG_ALGORITHM<<"' section. It's compared to '"<<CN_HLH_TYPE<<"'."<<std::endl;
+        LOG_WARNING("Error! No 'hlh_type' element found inside '{}' section. It's compared to '{}'.", CNS_TAG_ALGORITHM, CN_HLH_TYPE);
         hlh_type = CN_HLH_TYPE;
     }
     else
@@ -180,7 +180,7 @@ void Config::getConfig(const char *fileName)
         stream>>hlh_type;
         if(hlh_type < 0 || hlh_type > 2)
         {
-            std::cout << "Error! Wrong 'hlh_type' value found inside '"<<CNS_TAG_ALGORITHM<<"' section. It's compared to '"<<CN_HLH_TYPE<<"'."<<std::endl;
+            LOG_WARNING("Error! Wrong 'hlh_type' value found inside '{}' section. It's compared to '{}'.", CNS_TAG_ALGORITHM, CN_HLH_TYPE);
             hlh_type = CN_HLH_TYPE;
         }
         stream.clear();
@@ -190,7 +190,7 @@ void Config::getConfig(const char *fileName)
     element = algorithm->FirstChildElement("timelimit");
     if (!element)
     {
-        std::cout << "Error! No 'timelimit' element found inside '"<<CNS_TAG_ALGORITHM<<"' section. It's compared to '"<<CN_TIMELIMIT<<"'."<<std::endl;
+        LOG_WARNING("Error! No 'timelimit' element found inside '{}' section. It's compared to '{}'.", CNS_TAG_ALGORITHM, CN_TIMELIMIT);
         timelimit = CN_TIMELIMIT;
     }
     else
