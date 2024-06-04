@@ -9,13 +9,20 @@
 #include <memory>
 #include <set>
 #include <iterator>
+#include <optional>
+#include <functional>
 #include <boost/multi_index_container.hpp>
 #include <boost/multi_index/ordered_index.hpp>
 #include <boost/multi_index/hashed_index.hpp>
 #include <boost/multi_index/member.hpp>
 #include <boost/multi_index/composite_key.hpp>
+
+
 using boost::multi_index_container;
 using namespace boost::multi_index;
+
+struct Agent;
+using opt_agent_ref_t = std::optional<std::reference_wrapper<Agent>>;
 
 struct Agent
 {
@@ -62,18 +69,24 @@ struct Position
 struct Path
 {
     std::vector<Node> nodes;
-    double cost;
-    int agentID;
-    int expanded;
-    Path(std::vector<Node> _nodes = std::vector<Node>(0), double _cost = -1, int _agentID = -1)
-        : nodes(_nodes), cost(_cost), agentID(_agentID) {expanded = 0;}
+    double            cost;
+    int               expanded;
+    opt_agent_ref_t   agent = std::nullopt;
+
+    Path(std::vector<Node> _nodes = std::vector<Node>(0),
+         double            _cost  = -1,
+         opt_agent_ref_t   _agent = std::nullopt)
+        : nodes(_nodes), cost(_cost), agent(_agent) {expanded = 0;}
 };
 
 struct sNode
 {
-    int id;
+    int    id;
     double g;
-    sNode(int id_=-1, double g_=-1):id(id_),g(g_){}
+
+    sNode (int id_= -1, double g_= -1)
+        : id(id_), g(g_) {}
+
     sNode(const Node &n)
     {
         id = n.id;
@@ -84,15 +97,30 @@ struct sNode
 struct sPath
 {
     std::vector<sNode> nodes;
-    double cost;
-    int agentID;
-    int expanded;
-    sPath(std::vector<sNode> _nodes = std::vector<sNode>(0), double _cost = -1, int _agentID = -1)
-        : nodes(_nodes), cost(_cost), agentID(_agentID) {expanded = 0;}
+    double             cost;
+    int                expanded;
+    opt_agent_ref_t    agent = std::nullopt;
+
+    sPath(std::vector<sNode> _nodes = std::vector<sNode>(0),
+          double             _cost  = -1,
+          opt_agent_ref_t    _agent = std::nullopt)
+        : nodes(_nodes), cost(_cost), agent(_agent) {expanded = 0;}
+
     sPath operator= (const Path &path)
     {
         cost = path.cost;
-        agentID = path.agentID;
+        agent = path.agent;
+        expanded = path.expanded;
+        nodes.clear();
+        for(auto n:path.nodes)
+            nodes.push_back(sNode(n));
+        return *this;
+    }
+
+    sPath operator= (Path &path)
+    {
+        cost = path.cost;
+        agent = path.agent;
         expanded = path.expanded;
         nodes.clear();
         for(auto n:path.nodes)
@@ -103,18 +131,25 @@ struct sPath
 
 struct Constraint
 {
-    int agent;
+    opt_agent_ref_t agent = std::nullopt;
     double t1, t2; // prohibited to start moving from (i1, j1) to (i2, j2) during interval (t1, t2)
     //double i1, j1, i2, j2; // in case of node constraint i1==i2, j1==j2.
     int id1, id2;
     bool positive;
-    Constraint(int _agent = -1, double _t1 = -1, double _t2 = -1, int _id1 = -1, int _id2 = -1, bool _positive = false)
+
+    Constraint(opt_agent_ref_t _agent = std::nullopt,
+               double _t1 = -1, double _t2 = -1,
+               int _id1 = -1, int _id2 = -1,
+               bool _positive = false)
         : agent(_agent), t1(_t1), t2(_t2), id1(_id1), id2(_id2), positive(_positive) {}
+
     friend std::ostream& operator <<(std::ostream& os, const Constraint& con)
     {
-        os<<con.agent<<" "<<con.t1<<" "<<con.t2<<" \n";//<<con.i1<<" "<<con.j1<<" "<<con.i2<<" "<<con.j2<<"\n";
+        int agent_id = con.agent? con.agent->get().id : -1;
+        os << agent_id << " " << con.t1 << " " << con.t2 << " \n";
         return os;
     }
+
     bool operator <(const Constraint& other) const
     {
         return t1 < other.t1;
@@ -126,12 +161,30 @@ struct Move
     double t1, t2; // t2 is required for wait action
     //double i1, j1, i2, j2; // in case of wait action i1==i2, j1==j2
     int id1, id2;
-    Move(double _t1 = -1, double _t2 = -1, int _id1 = -1, int _id2 = -1)
-        : t1(_t1), t2(_t2), id1(_id1), id2(_id2) {}
-    Move(const Move& move) : t1(move.t1), t2(move.t2), id1(move.id1), id2(move.id2) {}
-    Move(const Constraint& con) : t1(con.t1), t2(con.t2), id1(con.id1), id2(con.id2) {}
-    Move(Node a, Node b) : t1(a.g), t2(b.g), id1(a.id), id2(b.id) {}
-    Move(sNode a, sNode b): t1(a.g), t2(b.g), id1(a.id), id2(b.id) {}
+    opt_agent_ref_t agent = std::nullopt;
+
+    Move(double          _t1    = -1,
+         double          _t2    = -1,
+         int             _id1   = -1,
+         int             _id2   = -1,
+         opt_agent_ref_t _agent = std::nullopt)
+        : t1(_t1), t2(_t2), id1(_id1), id2(_id2), agent(_agent) {}
+
+    Move(const Move& move) :
+        t1(move.t1), t2(move.t2), id1(move.id1), id2(move.id2), agent(move.agent) {}
+
+    Move(const Constraint& con) :
+        t1(con.t1), t2(con.t2), id1(con.id1), id2(con.id2), agent(con.agent) {}
+
+    Move(Node a,
+         Node b, 
+         opt_agent_ref_t _agent = std::nullopt)
+        : t1(a.g), t2(b.g), id1(a.id), id2(b.id), agent(_agent) {}
+
+    Move(sNode a, sNode b,
+         opt_agent_ref_t _agent = std::nullopt)
+        : t1(a.g), t2(b.g), id1(a.id), id2(b.id), agent(_agent) {}
+
     bool operator <(const Move& other) const
     {
         if     (id1 < other.id1) return true;
@@ -153,13 +206,19 @@ struct Step
 
 struct Conflict
 {
-    int agent1, agent2;
-    double t;
+    opt_agent_ref_t agent1 = std::nullopt;
+    opt_agent_ref_t agent2 = std::nullopt;
+    double          t;
     Move move1, move2;
     double overcost;
-    //sPath path1, path2;
-    Conflict(int _agent1 = -1, int _agent2 = -1, Move _move1 = Move(), Move _move2 = Move(), double _t = CN_INFINITY)
+
+    Conflict(opt_agent_ref_t _agent1 = std::nullopt,
+             opt_agent_ref_t _agent2 = std::nullopt,
+             Move            _move1  = Move(),
+             Move            _move2  = Move(),
+             double          _t      = CN_INFINITY)
         : agent1(_agent1), agent2(_agent2), t(_t), move1(_move1), move2(_move2) {overcost = 0;}
+
     bool operator < (const Conflict& other)
     {
         return this->overcost < other.overcost;
@@ -349,8 +408,8 @@ public:
         std::vector<sPath> paths(size);
         while(node.parent != nullptr)
         {
-            if(paths.at(node.paths.begin()->agentID).nodes.empty())
-                paths.at(node.paths.begin()->agentID) = *node.paths.begin();
+            if(paths.at(node.paths.begin()->agent.value().get().id).nodes.empty())
+                paths.at(node.paths.begin()->agent.value().get().id) = *node.paths.begin();
             node = *node.parent;
         }
         for(unsigned int i = 0; i < node.paths.size(); i++)

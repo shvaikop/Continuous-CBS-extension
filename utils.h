@@ -1,4 +1,5 @@
 #include <vector>
+#include <optional>
 
 
 // I would like to write a container that allows me to build up an object such as an std::vector, but once it is built up I can only access it through a const reference

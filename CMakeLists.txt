@@ -50,6 +50,7 @@ set(HEADER_FILES
     task.h
     cbs.h
     structs.h
+    util_funcs.h
     simplex/columnset.h
     simplex/constraint.h
     simplex/datamismatchexception.h

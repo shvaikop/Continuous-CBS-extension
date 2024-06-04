@@ -29,6 +29,7 @@ int main(int argc, const char *argv[])
         else
             task.make_ids(map.get_width());
         CBS cbs;
+        LOG_TRACE("About to find solution");
         Solution solution = cbs.find_solution(map, task, config);
         XML_logger logger;
         auto found = solution.found?"true":"false";

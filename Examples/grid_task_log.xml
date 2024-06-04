@@ -14,7 +14,7 @@
     <agent start_i="9" start_j="1" goal_i="7" goal_j="3"/>
     <agent start_i="5" start_j="1" goal_i="0" goal_j="5"/>
     <log>
-        <summary time="0.00065788399999999996" flowtime="104" makespan="11"/>
+        <summary time="0.016828294000000001" flowtime="104" makespan="11"/>
         <agent number="0">
             <path duration="11">
                 <section number="0" start_i="4" start_j="8" goal_i="4" goal_j="7" duration="1"/>
