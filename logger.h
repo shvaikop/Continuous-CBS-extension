@@ -54,7 +54,7 @@ void init_logging() {
     // Set up console sink for warnings and errors
     boost::log::add_console_log(
         std::clog,
-        boost::log::keywords::filter = boost::log::trivial::severity >= boost::log::trivial::trace,
+        boost::log::keywords::filter = boost::log::trivial::severity >= boost::log::trivial::warning,
         boost::log::keywords::format = (
             boost::log::expressions::stream
                 << "[" << boost::log::expressions::attr<boost::posix_time::ptime>("TimeStamp") << "]"

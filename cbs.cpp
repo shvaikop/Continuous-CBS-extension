@@ -50,6 +50,7 @@ bool CBS::init_root(const Map &map, const Task &task)
 
 bool CBS::check_conflict(Move move1, Move move2)
 {
+    LOG_TRACE("check_conflict");
     double startTimeA(move1.t1), endTimeA(move1.t2), startTimeB(move2.t1), endTimeB(move2.t2);
     double m1i1(map->get_i(move1.id1)), m1i2(map->get_i(move1.id2)), m1j1(map->get_j(move1.id1)), m1j2(map->get_j(move1.id2));
     double m2i1(map->get_i(move2.id1)), m2i2(map->get_i(move2.id2)), m2j1(map->get_j(move2.id1)), m2j2(map->get_j(move2.id2));
@@ -57,6 +58,7 @@ bool CBS::check_conflict(Move move1, Move move2)
     Vector2D B(m2i1, m2j1);
     Vector2D VA((m1i2 - m1i1)/(move1.t2 - move1.t1), (m1j2 - m1j1)/(move1.t2 - move1.t1));
     Vector2D VB((m2i2 - m2i1)/(move2.t2 - move2.t1), (m2j2 - m2j1)/(move2.t2 - move2.t1));
+    LOG_TRACE("check_conflict: after initialization");
     if(startTimeB > startTimeA)
     {
         A += VA*(startTimeB-startTimeA);
@@ -87,6 +89,7 @@ bool CBS::check_conflict(Move move1, Move move2)
 
 Constraint CBS::get_wait_constraint(opt_agent_ref_t agent, Move move1, Move move2)
 {
+    LOG_TRACE("get_wait_constraint");
     double radius = 2*config.agent_size;
     double i0(map->get_i(move2.id1)), j0(map->get_j(move2.id1)), i1(map->get_i(move2.id2)), j1(map->get_j(move2.id2)), i2(map->get_i(move1.id1)), j2(map->get_j(move1.id1));
     std::pair<double,double> interval;
@@ -139,6 +142,7 @@ Constraint CBS::get_wait_constraint(opt_agent_ref_t agent, Move move1, Move move
 
 double CBS::get_hl_heuristic(const std::list<Conflict> &conflicts)
 {
+    LOG_TRACE("get_hl_heuristic");
     if(conflicts.empty() || config.hlh_type == 0)
         return 0;
     else if (config.hlh_type == 1)
@@ -188,6 +192,7 @@ double CBS::get_hl_heuristic(const std::list<Conflict> &conflicts)
 
 Constraint CBS::get_constraint(opt_agent_ref_t agent, Move move1, Move move2)
 {
+    LOG_TRACE("get_constraint");
     if(move1.id1 == move1.id2)
         return get_wait_constraint(agent, move1, move2);
     double startTimeA(move1.t1), endTimeA(move1.t2);
@@ -223,8 +228,11 @@ Constraint CBS::get_constraint(opt_agent_ref_t agent, Move move1, Move move2)
     }
     return Constraint(agent, startTimeA, move1.t1, move1.id1, move1.id2);
 }
+
+
 Conflict CBS::get_conflict(std::list<Conflict> &conflicts)
 {
+    LOG_TRACE("get_conflict");
     auto best_it = conflicts.begin();
     for(auto it = conflicts.begin(); it != conflicts.end(); it++)
     {
@@ -244,6 +252,7 @@ Conflict CBS::get_conflict(std::list<Conflict> &conflicts)
 
 Solution CBS::find_solution(const Map &map, const Task &task, const Config &cfg)
 {
+    LOG_TRACE("find_solution");
     config = cfg;
     this->map = &map;
     h_values.init(map.get_size(), task.get_agents_size());
@@ -440,6 +449,7 @@ Solution CBS::find_solution(const Map &map, const Task &task, const Config &cfg)
 
 bool CBS::check_positive_constraints(std::list<Constraint> constraints, Constraint constraint)
 {
+    LOG_TRACE("check_positive_constraints");
     std::list<Constraint> positives;
     for(auto c: constraints) {
         if(c.positive && get_agent_id_safe(c.agent) == get_agent_id_safe(c.agent)) {
@@ -460,6 +470,7 @@ bool CBS::check_positive_constraints(std::list<Constraint> constraints, Constrai
 bool CBS::validate_constraints(std::list<Constraint> constraints,
                                opt_agent_ref_t       agent)
 {
+    LOG_TRACE("validate_constraints");
     std::list<Constraint> positives;
     int agent_id = get_agent_id_safe(agent);
 
@@ -483,6 +494,7 @@ void CBS::find_new_conflicts(const Map &map, const Task &task, CBS_Node &node, s
                              const std::list<Conflict> &conflicts, const std::list<Conflict> &semicard_conflicts, const std::list<Conflict> &cardinal_conflicts,
                              int &low_level_searches, int &low_level_expanded)
 {
+    LOG_TRACE("find_new_conflicts");
     int path_agent_id = get_agent_id_safe(path.agent);
     auto oldpath = paths[path_agent_id];
     paths[path_agent_id] = path;
@@ -613,6 +625,7 @@ void CBS::find_new_conflicts(const Map &map, const Task &task, CBS_Node &node, s
 std::list<Constraint> CBS::get_constraints(CBS_Node *      node,
                                            opt_agent_ref_t agent)
 {
+    LOG_TRACE("get_constraints");
     CBS_Node* curNode = node;
     std::list<Constraint> constraints(0);
     int agent_id = agent ? agent->get().id : -1;
@@ -633,12 +646,14 @@ std::list<Constraint> CBS::get_constraints(CBS_Node *      node,
 
 std::optional<Conflict> CBS::check_paths(const sPath &pathA, const sPath &pathB)
 {
+    LOG_TRACE("check_paths");
     unsigned int a(0), b(0);
     auto nodesA = pathA.nodes;
     auto nodesB = pathB.nodes;
     while(a < nodesA.size() - 1 || b < nodesB.size() - 1)
     {
         double dist = sqrt(pow(map->get_i(nodesA[a].id) - map->get_i(nodesB[b].id), 2) + pow(map->get_j(nodesA[a].id) - map->get_j(nodesB[b].id), 2)) - CN_EPSILON;
+        LOG_TRACE("after dist");
         if(a < nodesA.size() - 1 && b < nodesB.size() - 1) // if both agents have not reached their goals yet
         {
             if(dist < (nodesA[a+1].g - nodesA[a].g) + (nodesB[b+1].g - nodesB[b].g) + CN_AGENT_SIZE*2)
@@ -683,6 +698,7 @@ std::optional<Conflict> CBS::check_paths(const sPath &pathA, const sPath &pathB)
 std::vector<Conflict> CBS::get_all_conflicts(const std::vector<sPath> &paths,
                                              opt_agent_ref_t           agent)
 {
+    LOG_TRACE("get_all_conflicts");
     std::vector<Conflict> conflicts;
     int agent_id = get_agent_id_unsafe(agent);
     //check all agents
@@ -710,6 +726,7 @@ std::vector<Conflict> CBS::get_all_conflicts(const std::vector<sPath> &paths,
 
 double CBS::get_cost(CBS_Node node, opt_agent_ref_t agent)
 {
+    LOG_TRACE("get_cost");
     int agent_id = get_agent_id_safe(agent);
     while(node.parent != nullptr)
     {
@@ -723,6 +740,7 @@ double CBS::get_cost(CBS_Node node, opt_agent_ref_t agent)
 
 std::vector<sPath> CBS::get_paths(CBS_Node *node, unsigned int agents_size)
 {
+    LOG_TRACE("get_paths");
     CBS_Node* curNode = node;
     std::vector<sPath> paths(agents_size);
     while(curNode->parent != nullptr)
