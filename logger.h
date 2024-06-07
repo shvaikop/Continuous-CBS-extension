@@ -41,7 +41,7 @@ void init_logging() {
     boost::log::add_file_log(
         boost::log::keywords::file_name = log_file_name, // Log files named sample_1.log, sample_2.log, etc.
         // boost::log::keywords::format = "[%TimeStamp%]: %Message%"
-        boost::log::keywords::filter = boost::log::trivial::severity >= boost::log::trivial::trace,
+        boost::log::keywords::filter = boost::log::trivial::severity >= boost::log::trivial::warning,
         boost::log::keywords::format = (
             boost::log::expressions::stream
                 << "[" << boost::log::expressions::attr<boost::posix_time::ptime>("TimeStamp") << "]"

@@ -28,8 +28,8 @@ int main(int argc, const char *argv[])
             task.make_ij(map);
         else
             task.make_ids(map.get_width());
-        CBS cbs;
-        Solution solution = cbs.find_solution(map, task, config);
+        CBS cbs(map, task, config);
+        Solution solution = cbs.find_solution();
         XML_logger logger;
         auto found = solution.found?"true":"false";
         std::cout<< "Soulution found: " << found << "\nRuntime: "<<solution.time.count() << "\nMakespan: " << solution.makespan << "\nFlowtime: " << solution.flowtime<< "\nInitial Cost: "<<solution.init_cost<< "\nCollision Checking Time: " << solution.check_time

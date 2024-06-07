@@ -1,10 +1,20 @@
 #include "cbs.h"
 
-bool CBS::init_root(const Map &map, const Task &task)
+CBS::CBS(const Map & map,
+         const Task & task,
+         const Config config)
+    : map{&map}, task{&task}, config{config}
+    {}
+
+
+bool CBS::init_root()
 {
     CBS_Node root;
-    tree.set_focal_weight(config.focal_weight);
     sPath path;
+    const Task & task = *(this->task);
+    const Map & map = *(this->map);
+
+    tree.set_focal_weight(config.focal_weight);
     for(int i = 0; i < int(task.get_agents_size()); i++)
     {
         Agent agent = task.get_agent(i);
@@ -239,10 +249,10 @@ Conflict CBS::get_conflict(std::list<Conflict> &conflicts)
     return conflict;
 }
 
-Solution CBS::find_solution(const Map &map, const Task &task, const Config &cfg)
+Solution CBS::find_solution()
 {
-    config = cfg;
-    this->map = &map;
+    const Map & map = *(this->map);
+    const Task & task = *(this->task);
     h_values.init(map.get_size(), task.get_agents_size());
     for(int i = 0; i < int(task.get_agents_size()); i++)
     {
@@ -251,7 +261,7 @@ Solution CBS::find_solution(const Map &map, const Task &task, const Config &cfg)
     }
     auto t = std::chrono::high_resolution_clock::now();
     int cardinal_solved = 0, semicardinal_solved = 0;
-    if(!this->init_root(map, task))
+    if(!this->init_root())
         return solution;
     solution.init_time = std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::high_resolution_clock::now() - t);
     solution.found = true;
@@ -388,7 +398,7 @@ Solution CBS::find_solution(const Map &map, const Task &task, const Config &cfg)
         if(right_ok && pathA.cost > 0 && validate_constraints(constraintsA, pathA.agentID))
         {
             time_now = std::chrono::high_resolution_clock::now();
-            find_new_conflicts(map, task, right, paths, pathA, conflicts, semicard_conflicts, cardinal_conflicts, low_level_searches, low_level_expanded);
+            find_new_conflicts(right, paths, pathA, conflicts, semicard_conflicts, cardinal_conflicts, low_level_searches, low_level_expanded);
             time_spent = std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::high_resolution_clock::now() - time_now);
             time += time_spent.count();
             if(right.cost > 0)
@@ -401,7 +411,7 @@ Solution CBS::find_solution(const Map &map, const Task &task, const Config &cfg)
         if(left_ok && pathB.cost > 0 && validate_constraints(constraintsB, pathB.agentID))
         {
             time_now = std::chrono::high_resolution_clock::now();
-            find_new_conflicts(map, task, left, paths, pathB, conflicts, semicard_conflicts, cardinal_conflicts, low_level_searches, low_level_expanded);
+            find_new_conflicts(left, paths, pathB, conflicts, semicard_conflicts, cardinal_conflicts, low_level_searches, low_level_expanded);
             time_spent = std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::high_resolution_clock::now() - time_now);
             time += time_spent.count();           
             if(left.cost > 0)
@@ -470,10 +480,17 @@ bool CBS::validate_constraints(std::list<Constraint> constraints, int agent)
     return true;
 }
 
-void CBS::find_new_conflicts(const Map &map, const Task &task, CBS_Node &node, std::vector<sPath> &paths, const sPath &path,
-                             const std::list<Conflict> &conflicts, const std::list<Conflict> &semicard_conflicts, const std::list<Conflict> &cardinal_conflicts,
-                             int &low_level_searches, int &low_level_expanded)
+void CBS::find_new_conflicts(CBS_Node                  & node,
+                             std::vector<sPath>        & paths,
+                             const sPath               & path,
+                             const std::list<Conflict> & conflicts,
+                             const std::list<Conflict> & semicard_conflicts,
+                             const std::list<Conflict> & cardinal_conflicts,
+                             int                       & low_level_searches,
+                             int                       & low_level_expanded)
 {
+    const Task & task = *(this->task);
+    const Map & map = *(this->map);
     auto oldpath = paths[path.agentID];
     paths[path.agentID] = path;
     auto new_conflicts = get_all_conflicts(paths, path.agentID);

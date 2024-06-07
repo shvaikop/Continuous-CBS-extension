@@ -11,7 +11,10 @@ class Config
 {
 public:
     Config();
+
     void getConfig(const char* fileName);
+
+
     double  precision;
     double  focal_weight;
     bool    use_cardinal;
