@@ -59,6 +59,9 @@ private:
 
     Conflict get_conflict(std::list<Conflict> &conflicts);
 
+    double get_agents_radius_sum(const int agent_1_id,
+                                 const int agent_2_id);
+
     CBS_Tree tree;
     SIPP planner;
     Solution solution;

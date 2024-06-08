@@ -73,7 +73,7 @@ void Task::make_ij(const Map& map)
 
 }
 
-Agent Task::get_agent(int id) const
+const Agent Task::get_agent(int id) const
 {
     if(id >= 0 && id < int(agents.size())) {
         return agents[id];

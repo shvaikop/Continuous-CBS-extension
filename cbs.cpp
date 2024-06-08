@@ -57,6 +57,7 @@ bool CBS::init_root()
 
 bool CBS::check_conflict(Move move1, Move move2)
 {
+    double agents_radius_sum = get_agents_radius_sum(move1.agentID, move1.agentID);
     double startTimeA(move1.t1), endTimeA(move1.t2), startTimeB(move2.t1), endTimeB(move2.t2);
     double m1i1(map->get_i(move1.id1)), m1i2(map->get_i(move1.id2)), m1j1(map->get_j(move1.id1)), m1j2(map->get_j(move1.id2));
     double m2i1(map->get_i(move2.id1)), m2i2(map->get_i(move2.id2)), m2j1(map->get_j(move2.id1)), m2j2(map->get_j(move2.id2));
@@ -74,7 +75,7 @@ bool CBS::check_conflict(Move move1, Move move2)
         B += VB*(startTimeA - startTimeB);
         startTimeB = startTimeA;
     }
-    double r(2*CN_AGENT_SIZE);
+    double r(agents_radius_sum);
     Vector2D w(B - A);
     double c(w*w - r*r);
     if(c < 0)
@@ -627,13 +628,14 @@ Conflict CBS::check_paths(const sPath &pathA, const sPath &pathB)
     unsigned int a(0), b(0);
     auto nodesA = pathA.nodes;
     auto nodesB = pathB.nodes;
+    double agents_radius_sum = this->get_agents_radius_sum(pathA.agentID, pathB.agentID);
     
     while(a < nodesA.size() - 1 || b < nodesB.size() - 1)
     {
         double dist = sqrt(pow(map->get_i(nodesA[a].id) - map->get_i(nodesB[b].id), 2) + pow(map->get_j(nodesA[a].id) - map->get_j(nodesB[b].id), 2)) - CN_EPSILON;
         if(a < nodesA.size() - 1 && b < nodesB.size() - 1) // if both agents have not reached their goals yet
         {
-            if(dist < (nodesA[a+1].g - nodesA[a].g) + (nodesB[b+1].g - nodesB[b].g) + CN_AGENT_SIZE*2) {
+            if(dist < (nodesA[a+1].g - nodesA[a].g) + (nodesB[b+1].g - nodesB[b].g) + agents_radius_sum) {
                 if(check_conflict(Move(nodesA[a], nodesA[a+1], pathA.agentID),
                                   Move(nodesB[b], nodesB[b+1], pathB.agentID))) {
                     return Conflict(pathA.agentID, pathB.agentID,
@@ -645,7 +647,7 @@ Conflict CBS::check_paths(const sPath &pathA, const sPath &pathB)
         }
         else if(a == nodesA.size() - 1) // if agent A has already reached the goal
         {
-            if(dist < (nodesB[b+1].g - nodesB[b].g) + CN_AGENT_SIZE*2) {
+            if(dist < (nodesB[b+1].g - nodesB[b].g) + agents_radius_sum) {
                 if(check_conflict(Move(nodesA[a].g, CN_INFINITY, nodesA[a].id, nodesA[a].id, pathA.agentID),
                                   Move(nodesB[b], nodesB[b+1], pathB.agentID))) {
                     return Conflict(pathA.agentID, pathB.agentID,
@@ -656,7 +658,7 @@ Conflict CBS::check_paths(const sPath &pathA, const sPath &pathB)
         }
         else if(b == nodesB.size() - 1) // if agent B has already reached the goal
         {
-            if(dist < (nodesA[a+1].g - nodesA[a].g) + CN_AGENT_SIZE*2) {
+            if(dist < (nodesA[a+1].g - nodesA[a].g) + agents_radius_sum) {
                 if(check_conflict(Move(nodesA[a], nodesA[a+1], pathA.agentID),
                                   Move(nodesB[b].g, CN_INFINITY, nodesB[b].id, nodesB[b].id, pathB.agentID))) {
                     return Conflict(pathA.agentID, pathB.agentID,
@@ -734,4 +736,10 @@ std::vector<sPath> CBS::get_paths(CBS_Node *node, unsigned int agents_size)
         if(paths.at(i).cost < 0)
             paths.at(i) = curNode->paths.at(i);
     return paths;
+}
+
+double CBS::get_agents_radius_sum(const int agent_1_id,
+                                  const int agent_2_id)
+{
+    return task->get_agent(agent_1_id).size + task->get_agent(agent_2_id).size;
 }

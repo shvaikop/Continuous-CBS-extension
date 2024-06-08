@@ -18,11 +18,18 @@ class Task
 private:
     std::vector<Agent> agents;
 public:
+    Task();
+
     bool get_task(const char* FileName, int k=-1);
+
     unsigned int get_agents_size() const { return agents.size(); }
+
     void make_ids(int width);
+
     void make_ij(const Map &map);
-    Agent get_agent(int id) const;
+
+    const Agent get_agent(int id) const;
+
     void print_task()
     {
         //for(int i=0; i<agents.size(); i++)
@@ -30,7 +37,6 @@ public:
         for(auto agent:agents)
             std::cout<<"<agent start_i=\""<<agent.start_i<<"\" start_j=\""<<agent.start_j<<"\" goal_i=\""<<agent.goal_i<<"\" goal_j=\""<<agent.goal_j<<"\"/>\n";
     }
-    Task();
 };
 
 #endif // TASK_H
