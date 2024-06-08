@@ -19,12 +19,26 @@ using namespace boost::multi_index;
 
 struct Agent
 {
+    // TODO: Split into base struct and multiple implementations based on the map type
+
     double start_i, start_j, goal_i, goal_j;
     int start_id, goal_id;
     int id;
     double size;
-    Agent(int s_id = -1, int g_id = -1, int _id = -1)
-        :start_id(s_id), goal_id(g_id), id(_id) {}
+
+    Agent(double _start_i,
+          double _start_j,
+          double _goal_i,
+          double _goal_j,
+          int    _start_id,
+          int    _goal_id,
+          int    _id,
+          double _size)
+        : start_i{_start_i}, start_j{_start_j}, goal_i{_goal_i}, goal_j{_goal_j},
+            start_id{_start_id}, goal_id{_goal_id}, id{_id}, size{_size} {}
+
+    // Agent(int s_id = -1, int g_id = -1, int _id = -1)
+    //     :start_id(s_id), goal_id(g_id), id(_id) {}
 };
 
 struct gNode

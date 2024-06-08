@@ -6,16 +6,16 @@
 #include <unordered_map>
 #include <map>
 #include <set>
+#include <optional>
 class SIPP
 {
 public:
 
     SIPP()  {}
     ~SIPP() {}
-    Path find_path(Agent agent, const Map &map, std::list<Constraint> cons, Heuristic &h_values);
+    Path find_path(Agent _agent, const Map &map, std::list<Constraint> cons, Heuristic &h_values);
 
 private:
-    Agent agent;
     std::vector<Path> find_partial_path(std::vector<Node> starts, std::vector<Node> goals, const Map &map, Heuristic &h_values, double max_f = CN_INFINITY);
     Path add_part(Path result, Path part);
     void find_successors(Node curNode, const Map &map, std::list<Node> &succs, Heuristic &h_values, Node goal);
@@ -30,6 +30,7 @@ private:
     std::vector<Node> get_endpoints(int node_id, double node_i, double node_j, double t1, double t2);
     double check_endpoint(Node start, Node goal);
 
+    std::optional<Agent> agent = std::nullopt;
     std::unordered_map<int, Node> close;
     std::list<Node> open;
     std::unordered_map<int, std::pair<double, bool>> visited;

@@ -26,15 +26,24 @@ bool Task::get_task(const char *FileName, int k)
 
     for (agent = root->FirstChildElement(); agent; agent = agent->NextSiblingElement())
     {
-        Agent a;
-        a.start_i = agent->DoubleAttribute(CNS_TAG_START_I);
-        a.start_j = agent->DoubleAttribute(CNS_TAG_START_J);
-        a.start_id = agent->IntAttribute(CNS_TAG_START_ID);
-        a.goal_i = agent->DoubleAttribute(CNS_TAG_GOAL_I);
-        a.goal_j = agent->DoubleAttribute(CNS_TAG_GOAL_J);
-        a.goal_id = agent->IntAttribute(CNS_TAG_GOAL_ID);
-        a.id = int(agents.size());
-        agents.push_back(a);
+        // Agent a;
+        // a.start_i = agent->DoubleAttribute(CNS_TAG_START_I);
+        // a.start_j = agent->DoubleAttribute(CNS_TAG_START_J);
+        // a.start_id = agent->IntAttribute(CNS_TAG_START_ID);
+        // a.goal_i = agent->DoubleAttribute(CNS_TAG_GOAL_I);
+        // a.goal_j = agent->DoubleAttribute(CNS_TAG_GOAL_J);
+        // a.goal_id = agent->IntAttribute(CNS_TAG_GOAL_ID);
+        // a.id = int(agents.size());
+        // agents.push_back(a);
+
+        agents.emplace_back(Agent(agent->DoubleAttribute(CNS_TAG_START_I),
+                                  agent->DoubleAttribute(CNS_TAG_START_J),
+                                  agent->DoubleAttribute(CNS_TAG_GOAL_I),
+                                  agent->DoubleAttribute(CNS_TAG_GOAL_J),
+                                  agent->IntAttribute(CNS_TAG_START_ID),
+                                  agent->IntAttribute(CNS_TAG_GOAL_ID),
+                                  int(agents.size()),
+                                  agent->DoubleAttribute(CNS_TAG_AGENT_RADIUS, CN_AGENT_SIZE)));
         if(int(agents.size()) == k)
             break;
     }
@@ -66,9 +75,8 @@ void Task::make_ij(const Map& map)
 
 Agent Task::get_agent(int id) const
 {
-    if(id >= 0 && id < int(agents.size()))
+    if(id >= 0 && id < int(agents.size())) {
         return agents[id];
-    else
-        LOG_WARNING("Task::get_agent called with id: {}", id);
-        return Agent();
+    }
+    throw std::runtime_error("Task::get_agent called with id: " + std::to_string(id));
 }

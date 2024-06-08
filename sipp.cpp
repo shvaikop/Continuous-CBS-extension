@@ -18,6 +18,10 @@ double SIPP::dist(const Node& a, const Node& b)
 
 void SIPP::find_successors(Node curNode, const Map &map, std::list<Node> &succs, Heuristic &h_values, Node goal)
 {
+    if (!this->agent) {
+        throw std::runtime_error("SIPP::find_successors called without agent");
+    }
+
     Node newNode;
     std::vector<Node> valid_moves = map.get_valid_moves(curNode.id);
     for(auto move : valid_moves)
@@ -73,8 +77,8 @@ void SIPP::find_successors(Node curNode, const Map &map, std::list<Node> &succs,
             }
             else
                 visited.insert({newNode.id + newNode.interval_id * map.get_size(), {newNode.g, false}});
-            if(goal.id == agent.goal_id) //perfect heuristic is known
-                newNode.f = newNode.g + h_values.get_value(newNode.id, agent.id);
+            if(goal.id == agent->goal_id) //perfect heuristic is known
+                newNode.f = newNode.g + h_values.get_value(newNode.id, agent->id);
             else
             {
                 double h = sqrt(pow(goal.i - newNode.i, 2) + pow(goal.j - newNode.j, 2));
@@ -376,10 +380,10 @@ double SIPP::check_endpoint(Node start, Node goal)
         return start.g + cost;
 }
 
-Path SIPP::find_path(Agent agent, const Map &map, std::list<Constraint> cons, Heuristic &h_values)
+Path SIPP::find_path(Agent _agent, const Map &map, std::list<Constraint> cons, Heuristic &h_values)
 {
     this->clear();
-    this->agent = agent;
+    this->agent = _agent;
     make_constraints(cons);
 
     std::vector<Node> starts, goals;
@@ -392,7 +396,7 @@ Path SIPP::find_path(Agent agent, const Map &map, std::list<Constraint> cons, He
         {
             if(i == 0)
             {
-                starts = {get_endpoints(agent.start_id, agent.start_i, agent.start_j, 0, CN_INFINITY).at(0)};
+                starts = {get_endpoints(agent->start_id, agent->start_i, agent->start_j, 0, CN_INFINITY).at(0)};
                 goals = get_endpoints(landmarks[i].id1, map.get_i(landmarks[i].id1), map.get_j(landmarks[i].id1), landmarks[i].t1, landmarks[i].t2);
             }
             else
@@ -401,7 +405,7 @@ Path SIPP::find_path(Agent agent, const Map &map, std::list<Constraint> cons, He
                 for(auto p:results)
                     starts.push_back(p.nodes.back());
                 if(i == landmarks.size())
-                    goals = {get_endpoints(agent.goal_id, agent.goal_i, agent.goal_j, 0, CN_INFINITY).back()};
+                    goals = {get_endpoints(agent->goal_id, agent->goal_i, agent->goal_j, 0, CN_INFINITY).back()};
                 else
                     goals = get_endpoints(landmarks[i].id1, map.get_i(landmarks[i].id1), map.get_j(landmarks[i].id1), landmarks[i].t1, landmarks[i].t2);
             }
@@ -487,8 +491,8 @@ Path SIPP::find_path(Agent agent, const Map &map, std::list<Constraint> cons, He
     }
     else
     {
-        starts = {get_endpoints(agent.start_id, agent.start_i, agent.start_j, 0, CN_INFINITY).at(0)};
-        goals = {get_endpoints(agent.goal_id, agent.goal_i, agent.goal_j, 0, CN_INFINITY).back()};
+        starts = {get_endpoints(agent->start_id, agent->start_i, agent->start_j, 0, CN_INFINITY).at(0)};
+        goals = {get_endpoints(agent->goal_id, agent->goal_i, agent->goal_j, 0, CN_INFINITY).back()};
         parts = find_partial_path(starts, goals, map, h_values);
         expanded = int(close.size());
         if(parts[0].cost < 0)
@@ -497,7 +501,7 @@ Path SIPP::find_path(Agent agent, const Map &map, std::list<Constraint> cons, He
     }
     result.nodes.shrink_to_fit();
     result.cost = result.nodes.back().g;
-    result.agentID = agent.id;
+    result.agentID = agent->id;
     result.expanded = expanded;
     return result;
 }
