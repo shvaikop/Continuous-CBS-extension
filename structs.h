@@ -126,12 +126,31 @@ struct Move
     double t1, t2; // t2 is required for wait action
     //double i1, j1, i2, j2; // in case of wait action i1==i2, j1==j2
     int id1, id2;
-    Move(double _t1 = -1, double _t2 = -1, int _id1 = -1, int _id2 = -1)
-        : t1(_t1), t2(_t2), id1(_id1), id2(_id2) {}
-    Move(const Move& move) : t1(move.t1), t2(move.t2), id1(move.id1), id2(move.id2) {}
-    Move(const Constraint& con) : t1(con.t1), t2(con.t2), id1(con.id1), id2(con.id2) {}
-    Move(Node a, Node b) : t1(a.g), t2(b.g), id1(a.id), id2(b.id) {}
-    Move(sNode a, sNode b): t1(a.g), t2(b.g), id1(a.id), id2(b.id) {}
+    int agentID;
+
+    Move() : t1{-1}, t2{-1}, id1{-1}, id2{-1}, agentID{-1} {}
+
+    Move(double _t1,
+         double _t2,
+         int    _id1,
+         int    _id2,
+         int    _agentID)
+        : t1{_t1}, t2{_t2}, id1{_id1}, id2{_id2}, agentID{_agentID} {}
+
+    Move(const Move& move)
+        : t1(move.t1), t2(move.t2), id1(move.id1), id2(move.id2),
+          agentID(move.agentID) {}
+
+    Move(const Constraint& con)
+        : t1(con.t1), t2(con.t2), id1(con.id1), id2(con.id2),
+          agentID(con.agent) {}
+
+    Move(Node a, Node b, int _agentID)
+        : t1(a.g), t2(b.g), id1(a.id), id2(b.id), agentID(_agentID) {}
+
+    Move(sNode a, sNode b, int _agentID)
+        : t1(a.g), t2(b.g), id1(a.id), id2(b.id), agentID(_agentID) {}
+
     bool operator <(const Move& other) const
     {
         if     (id1 < other.id1) return true;

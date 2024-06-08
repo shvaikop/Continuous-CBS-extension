@@ -11,6 +11,7 @@
 #include "const.h"
 #include <fstream>
 #include "map.h"
+#include "logger_macros.h"
 
 class Task
 {

@@ -69,5 +69,6 @@ Agent Task::get_agent(int id) const
     if(id >= 0 && id < int(agents.size()))
         return agents[id];
     else
+        LOG_WARNING("Task::get_agent called with id: {}", id);
         return Agent();
 }

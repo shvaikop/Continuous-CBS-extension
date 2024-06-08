@@ -233,12 +233,12 @@ void SIPP::make_constraints(std::list<Constraint> &cons)
             for(unsigned int i = 0; i < landmarks.size(); i++)
                 if(landmarks[i].t1 > con.t1)
                 {
-                    landmarks.insert(landmarks.begin() + i, Move(con.t1, con.t2, con.id1, con.id2));
+                    landmarks.insert(landmarks.begin() + i, Move(con.t1, con.t2, con.id1, con.id2, con.agent));
                     inserted = true;
                     break;
                 }
             if(!inserted)
-                landmarks.push_back(Move(con.t1, con.t2, con.id1, con.id2));
+                landmarks.push_back(Move(con.t1, con.t2, con.id1, con.id2, con.agent));
         }
     }
 }
